@@ -34,13 +34,14 @@
             min-height: 100vh;
         }
 
-        /* CABEÇALHO PRINCIPAL */
+        /* BANNER / CABEÇALHO PRINCIPAL */
         header {
             background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
             color: white;
             padding: 25px 20px;
             text-align: center;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
 
         .header-container {
@@ -65,18 +66,7 @@
             opacity: 0.9;
         }
 
-        .sync-status {
-            font-size: 0.85rem;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 4px 12px;
-            border-radius: 12px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 5px;
-        }
-
-        /* NAVEGAÇÃO / ABAS */
+        /* MENU DE NAVEGAÇÃO / ABAS */
         nav {
             background-color: white;
             border-bottom: 2px solid #e2e8f0;
@@ -143,7 +133,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* DASHBOARD CARDS */
+        /* DASHBOARD STATS */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -184,7 +174,7 @@
             opacity: 0.2;
         }
 
-        /* PAINÉIS */
+        /* CARTÕES / PAINÉIS */
         .panel {
             background-color: white;
             padding: 25px;
@@ -263,7 +253,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            margin-top: 15px;
+            margin-top: 10px;
         }
 
         .btn-submit:hover {
@@ -289,7 +279,7 @@
             background-color: var(--dark-blue);
         }
 
-        /* FILTROS */
+        /* FILTROS DE TABELA */
         .filters-container {
             display: flex;
             gap: 15px;
@@ -335,7 +325,7 @@
             background-color: #f8fafc;
         }
 
-        /* BADGES */
+        /* BADGES DE STATUS */
         .badge {
             padding: 4px 10px;
             border-radius: 12px;
@@ -364,10 +354,10 @@
             background: none;
             border: none;
             cursor: pointer;
-            padding: 6px 10px;
+            padding: 4px 8px;
             border-radius: 4px;
             color: #64748b;
-            transition: background 0.2s;
+            transition: color 0.2s;
         }
 
         .action-btn:hover {
@@ -375,7 +365,18 @@
             background-color: #f1f5f9;
         }
 
-        /* MODAL */
+        /* RODAPÉ */
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: white;
+            border-top: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: auto;
+        }
+
+        /* MODAL DE STATUS */
         .modal {
             display: none;
             position: fixed;
@@ -414,17 +415,6 @@
             gap: 10px;
             margin-top: 20px;
         }
-
-        /* RODAPÉ */
-        footer {
-            text-align: center;
-            padding: 20px;
-            background-color: white;
-            border-top: 1px solid #e2e8f0;
-            font-size: 0.85rem;
-            color: #64748b;
-            margin-top: auto;
-        }
     </style>
 </head>
 <body>
@@ -434,7 +424,6 @@
         <div class="header-container">
             <h1>EMEB Manoel de Medeiros Costa</h1>
             <p>São Bento, Maragogi / AL - Ensino Fundamental I (1º ao 5º Ano)</p>
-            <div class="sync-status"><i class="fa-solid fa-cloud"></i> Banco de Dados On-line (Conectado)</div>
         </div>
     </header>
 
@@ -793,12 +782,12 @@
             <div class="form-group">
                 <label for="modalStatusSelect">Selecione o novo Status:</label>
                 <select id="modalStatusSelect">
-                    <!-- Opções dinâmicas -->
+                    <!-- Opções dinâmicas pelo JS -->
                 </select>
             </div>
             <div class="modal-footer">
                 <button class="action-btn" onclick="fecharModal()">Cancelar</button>
-                <button class="btn-submit" style="padding: 8px 18px; margin-top:0;" onclick="confirmarAlteracaoStatus()">Salvar</button>
+                <button class="btn-submit" style="padding: 6px 15px; margin-top:0;" onclick="confirmarAlteracaoStatus()">Salvar</button>
             </div>
         </div>
     </div>
@@ -808,38 +797,22 @@
         <p>&copy; EMEB Manoel de Medeiros Costa - São Bento, Maragogi/AL. Sistema de Controle Escolar.</p>
     </footer>
 
-    <!-- INTEGRAÇÃO COM SEU FIREBASE REALTIME DATABASE -->
+    <!-- JAVASCRIPT / LÓGICA DO SISTEMA -->
     <script>
-        const FIREBASE_URL = "https://emeb-maragogi-default-rtdb.firebaseio.com/";
+        // ESTADO GLOBAL DA APLICAÇÃO (Salvo em localStorage)
+        let alunos = JSON.parse(localStorage.getItem('emeb_alunos')) || [];
+        let funcionarios = JSON.parse(localStorage.getItem('emeb_funcionarios')) || [];
 
-        let alunos = [];
-        let funcionarios = [];
-        let currentEditType = null;
+        let currentEditType = null; // 'aluno' ou 'funcionario'
         let currentEditId = null;
 
+        // INICIALIZAÇÃO
         document.addEventListener('DOMContentLoaded', () => {
-            carregarDadosDoBanco();
+            renderizarAlunos();
+            renderizarFuncionarios();
+            atualizarDashboard();
             aplicarMascaraTelefones();
         });
-
-        // CARREGA DADOS DO FIREBASE AO ABRIR
-        async function carregarDadosDoBanco() {
-            try {
-                const resAlunos = await fetch(`${FIREBASE_URL}/alunos.json`);
-                const dataAlunos = await resAlunos.json();
-                alunos = dataAlunos ? Object.values(dataAlunos) : [];
-
-                const resFuncs = await fetch(`${FIREBASE_URL}/funcionarios.json`);
-                const dataFuncs = await resFuncs.json();
-                funcionarios = dataFuncs ? Object.values(dataFuncs) : [];
-
-                renderizarAlunos();
-                renderizarFuncionarios();
-                atualizarDashboard();
-            } catch (error) {
-                console.error("Erro ao sincronizar com banco de dados:", error);
-            }
-        }
 
         // TROCA DE ABAS
         function switchTab(tabId) {
@@ -848,6 +821,7 @@
 
             document.getElementById(tabId).classList.add('active');
             
+            // Ativa o botão da nav correspondente
             const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(btn => 
                 btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(tabId)
             );
@@ -856,6 +830,7 @@
             if (tabId === 'dashboard') atualizarDashboard();
         }
 
+        // MÁSCARA DE TELEFONE AUTOMÁTICA
         function aplicarMascaraTelefones() {
             document.querySelectorAll('.phone-mask').forEach(input => {
                 input.addEventListener('input', (e) => {
@@ -875,14 +850,13 @@
             });
         }
 
-        // ---- ALUNOS ----
+        // ---- LÓGICA DE ALUNOS ----
 
-        async function salvarAluno(event) {
+        function salvarAluno(event) {
             event.preventDefault();
 
-            const idNovo = Date.now();
             const novoAluno = {
-                id: idNovo,
+                id: Date.now(),
                 nome: document.getElementById('alunoNome').value.trim(),
                 idade: document.getElementById('alunoIdade').value,
                 ano: document.getElementById('alunoAno').value,
@@ -892,18 +866,14 @@
                 nomePai: document.getElementById('nomePai').value.trim() || 'Não informado',
                 telPai: document.getElementById('telPai').value || 'N/A',
                 endereco: document.getElementById('alunoEndereco').value.trim(),
-                status: 'Matriculado',
+                status: 'Matriculado', // Padrão inicial
                 dataCadastro: new Date().toLocaleDateString('pt-BR')
             };
 
             alunos.push(novoAluno);
+            localStorage.setItem('emeb_alunos', JSON.stringify(alunos));
 
-            await fetch(`${FIREBASE_URL}/alunos/${idNovo}.json`, {
-                method: 'PUT',
-                body: JSON.stringify(novoAluno)
-            });
-
-            alert('Aluno cadastrado e salvo com sucesso!');
+            alert('Aluno cadastrado com sucesso!');
             document.getElementById('formAluno').reset();
             renderizarAlunos();
             switchTab('lista-alunos');
@@ -967,17 +937,16 @@
             });
         }
 
-        // ---- FUNCIONÁRIOS ----
+        // ---- LÓGICA DE FUNCIONÁRIOS ----
 
-        async function salvarFuncionario(event) {
+        function salvarFuncionario(event) {
             event.preventDefault();
 
-            const idNovo = Date.now();
             const dataAdmissao = document.getElementById('funcDataAdmissao').value;
             const dataFormatada = dataAdmissao ? new Date(dataAdmissao + 'T00:00:00').toLocaleDateString('pt-BR') : 'N/A';
 
             const novoFunc = {
-                id: idNovo,
+                id: Date.now(),
                 nome: document.getElementById('funcNome').value.trim(),
                 cargo: document.getElementById('funcCargo').value,
                 telefone: document.getElementById('funcTelefone').value,
@@ -985,17 +954,13 @@
                 vinculo: document.getElementById('funcVinculo').value,
                 dataAdmissao: dataFormatada,
                 endereco: document.getElementById('funcEndereco').value.trim() || 'Não informado',
-                status: 'Ativo'
+                status: 'Ativo' // Padrão inicial
             };
 
             funcionarios.push(novoFunc);
+            localStorage.setItem('emeb_funcionarios', JSON.stringify(funcionarios));
 
-            await fetch(`${FIREBASE_URL}/funcionarios/${idNovo}.json`, {
-                method: 'PUT',
-                body: JSON.stringify(novoFunc)
-            });
-
-            alert('Funcionário cadastrado e salvo com sucesso!');
+            alert('Funcionário cadastrado com sucesso!');
             document.getElementById('formFuncionario').reset();
             renderizarFuncionarios();
             switchTab('lista-funcionarios');
@@ -1049,7 +1014,7 @@
             });
         }
 
-        // ---- MODAL E STATUS ----
+        // ---- MODAL DE MODIFICAÇÃO DE STATUS ----
 
         function abrirModalStatus(tipo, id) {
             currentEditType = tipo;
@@ -1079,28 +1044,18 @@
             document.getElementById('statusModal').classList.remove('active');
         }
 
-        async function confirmarAlteracaoStatus() {
+        function confirmarAlteracaoStatus() {
             const novoStatus = document.getElementById('modalStatusSelect').value;
 
             if (currentEditType === 'aluno') {
                 const aluno = alunos.find(a => a.id === currentEditId);
-                if (aluno) {
-                    aluno.status = novoStatus;
-                    await fetch(`${FIREBASE_URL}/alunos/${currentEditId}.json`, {
-                        method: 'PATCH',
-                        body: JSON.stringify({ status: novoStatus })
-                    });
-                }
+                if (aluno) aluno.status = novoStatus;
+                localStorage.setItem('emeb_alunos', JSON.stringify(alunos));
                 renderizarAlunos();
             } else {
                 const func = funcionarios.find(f => f.id === currentEditId);
-                if (func) {
-                    func.status = novoStatus;
-                    await fetch(`${FIREBASE_URL}/funcionarios/${currentEditId}.json`, {
-                        method: 'PATCH',
-                        body: JSON.stringify({ status: novoStatus })
-                    });
-                }
+                if (func) func.status = novoStatus;
+                localStorage.setItem('emeb_funcionarios', JSON.stringify(funcionarios));
                 renderizarFuncionarios();
             }
 
@@ -1108,16 +1063,16 @@
             atualizarDashboard();
         }
 
-        async function excluirItem(tipo, id) {
+        function excluirItem(tipo, id) {
             if (!confirm('Tem certeza que deseja excluir este registro?')) return;
 
             if (tipo === 'aluno') {
                 alunos = alunos.filter(a => a.id !== id);
-                await fetch(`${FIREBASE_URL}/alunos/${id}.json`, { method: 'DELETE' });
+                localStorage.setItem('emeb_alunos', JSON.stringify(alunos));
                 renderizarAlunos();
             } else {
                 funcionarios = funcionarios.filter(f => f.id !== id);
-                await fetch(`${FIREBASE_URL}/funcionarios/${id}.json`, { method: 'DELETE' });
+                localStorage.setItem('emeb_funcionarios', JSON.stringify(funcionarios));
                 renderizarFuncionarios();
             }
             atualizarDashboard();
@@ -1136,6 +1091,7 @@
             document.getElementById('stat-alunos-saida').innerText = alunosSaida;
             document.getElementById('stat-total-geral').innerText = totalGeral;
 
+            // Tabela Resumo das Séries
             const series = ['1º Ano', '2º Ano', '3º Ano', '4º Ano', '5º Ano'];
             const tbodyResumo = document.getElementById('tbody-resumo-series');
             tbodyResumo.innerHTML = '';
@@ -1158,18 +1114,22 @@
             });
         }
 
-        // ---- IMPRESSÃO ----
+        // ---- NOVA FUNÇÃO DE IMPRESSÃO (IMPRESSÃO EM JANELA DEDICADA) ----
 
         function imprimirTabela(tableId, titulo) {
             const tabelaOriginal = document.getElementById(tableId);
             if (!tabelaOriginal) return;
 
+            // Clona a tabela para não afetar a tela principal
             const tabelaClonada = tabelaOriginal.cloneNode(true);
+
+            // Oculta a coluna de "Ações" na impressão
             tabelaClonada.querySelectorAll('.action-col').forEach(col => col.remove());
 
             const dataEmissao = new Date().toLocaleDateString('pt-BR');
             const horaEmissao = new Date().toLocaleTimeString('pt-BR');
 
+            // Cria uma janela oculta para disparar o diálogo de impressão de forma limpa
             const janelaImpressao = window.open('', '_blank', 'width=900,height=600');
 
             janelaImpressao.document.write(`
@@ -1206,6 +1166,7 @@
             janelaImpressao.document.close();
             janelaImpressao.focus();
 
+            // Executa o comando de impressão assim que os elementos forem renderizados
             setTimeout(() => {
                 janelaImpressao.print();
                 janelaImpressao.close();
