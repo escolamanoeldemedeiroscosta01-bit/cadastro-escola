@@ -376,76 +376,6 @@
             margin-top: auto;
         }
 
-        /* IMPRESSÃO (A4/PDF) */
-        .print-header {
-            display: none;
-        }
-
-        @media print {
-            body {
-                background: white;
-                color: black;
-            }
-
-            header, nav, footer, .filters-container, .btn-print, .action-btn, .btn-submit, form {
-                display: none !important;
-            }
-
-            main {
-                max-width: 100%;
-                margin: 0;
-                padding: 0;
-            }
-
-            .panel {
-                box-shadow: none;
-                padding: 0;
-                margin: 0;
-            }
-
-            .print-header {
-                display: block !important;
-                text-align: center;
-                border-bottom: 2px solid black;
-                padding-bottom: 10px;
-                margin-bottom: 20px;
-            }
-
-            .print-header h2 {
-                font-size: 1.4rem;
-                text-transform: uppercase;
-            }
-
-            .print-header p {
-                font-size: 0.9rem;
-            }
-
-            .tab-content {
-                display: none !important;
-            }
-
-            .tab-content.print-active {
-                display: block !important;
-            }
-
-            table {
-                width: 100%;
-                border: 1px solid #000;
-                font-size: 0.8rem;
-            }
-
-            th, td {
-                border: 1px solid #000;
-                padding: 6px;
-            }
-
-            .badge {
-                border: 1px solid #000;
-                background: none !important;
-                color: black !important;
-            }
-        }
-
         /* MODAL DE STATUS */
         .modal {
             display: none;
@@ -510,13 +440,6 @@
 
     <!-- CONTEÚDO PRINCIPAL -->
     <main>
-
-        <!-- CABEÇALHO EXCLUSIVO PARA IMPRESSÃO -->
-        <div class="print-header" id="printHeader">
-            <h2 id="printTitle">EMEB Manoel de Medeiros Costa</h2>
-            <p>Povoado São Bento, Maragogi - AL</p>
-            <p id="printSubtitle">Relatório Emitido em: <span id="printDate"></span></p>
-        </div>
 
         <!-- ABA 1: PAINEL GERAL / DASHBOARD -->
         <section id="dashboard" class="tab-content active">
@@ -651,7 +574,7 @@
             <div class="panel">
                 <div class="panel-header">
                     <h2 class="panel-title"><i class="fa-solid fa-graduation-cap"></i> Relação de Alunos</h2>
-                    <button class="btn-print" onclick="imprimirLista('lista-alunos', 'Relação de Alunos Cadastrados')">
+                    <button type="button" class="btn-print" onclick="imprimirTabela('lista-alunos-table', 'Relação Oficial de Alunos')">
                         <i class="fa-solid fa-print"></i> Imprimir Lista de Alunos
                     </button>
                 </div>
@@ -697,7 +620,7 @@
                 </div>
 
                 <div class="table-responsive">
-                    <table>
+                    <table id="lista-alunos-table">
                         <thead>
                             <tr>
                                 <th>Aluno</th>
@@ -791,7 +714,7 @@
             <div class="panel">
                 <div class="panel-header">
                     <h2 class="panel-title"><i class="fa-solid fa-user-tie"></i> Quadro de Funcionários</h2>
-                    <button class="btn-print" onclick="imprimirLista('lista-funcionarios', 'Quadro Oficial de Funcionários e Colaboradores')">
+                    <button type="button" class="btn-print" onclick="imprimirTabela('lista-funcionarios-table', 'Quadro Oficial de Funcionários e Colaboradores')">
                         <i class="fa-solid fa-print"></i> Imprimir Lista de Funcionários
                     </button>
                 </div>
@@ -828,7 +751,7 @@
                 </div>
 
                 <div class="table-responsive">
-                    <table>
+                    <table id="lista-funcionarios-table">
                         <thead>
                             <tr>
                                 <th>Nome</th>
@@ -900,7 +823,7 @@
             
             // Ativa o botão da nav correspondente
             const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(btn => 
-                btn.getAttribute('onclick').includes(tabId)
+                btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(tabId)
             );
             if (activeBtn) activeBtn.classList.add('active');
 
@@ -1191,18 +1114,63 @@
             });
         }
 
-        // ---- FUNÇÃO DE IMPRESSÃO ----
+        // ---- NOVA FUNÇÃO DE IMPRESSÃO (IMPRESSÃO EM JANELA DEDICADA) ----
 
-        function imprimirLista(sectionId, titulo) {
-            document.getElementById('printTitle').innerText = 'EMEB Manoel de Medeiros Costa';
-            document.getElementById('printSubtitle').innerText = `${titulo} - Emitido em: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}`;
-            document.getElementById('printDate').innerText = new Date().toLocaleDateString('pt-BR');
+        function imprimirTabela(tableId, titulo) {
+            const tabelaOriginal = document.getElementById(tableId);
+            if (!tabelaOriginal) return;
 
-            // Ativa a seção para impressão
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('print-active'));
-            document.getElementById(sectionId).classList.add('print-active');
+            // Clona a tabela para não afetar a tela principal
+            const tabelaClonada = tabelaOriginal.cloneNode(true);
 
-            window.print();
+            // Oculta a coluna de "Ações" na impressão
+            tabelaClonada.querySelectorAll('.action-col').forEach(col => col.remove());
+
+            const dataEmissao = new Date().toLocaleDateString('pt-BR');
+            const horaEmissao = new Date().toLocaleTimeString('pt-BR');
+
+            // Cria uma janela oculta para disparar o diálogo de impressão de forma limpa
+            const janelaImpressao = window.open('', '_blank', 'width=900,height=600');
+
+            janelaImpressao.document.write(`
+                <!DOCTYPE html>
+                <html lang="pt-BR">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>${titulo} - EMEB Manoel de Medeiros Costa</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; color: #000; }
+                        .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+                        .header h1 { font-size: 1.4rem; margin: 0; text-transform: uppercase; }
+                        .header p { margin: 3px 0; font-size: 0.9rem; }
+                        .title { font-size: 1.1rem; font-weight: bold; text-transform: uppercase; margin: 15px 0 10px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+                        th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; font-weight: bold; }
+                        .badge { padding: 2px 6px; border: 1px solid #000; font-size: 0.75rem; font-weight: bold; border-radius: 4px; display: inline-block; }
+                        footer { margin-top: 20px; font-size: 0.8rem; text-align: right; font-style: italic; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>EMEB Manoel de Medeiros Costa</h1>
+                        <p>Povoado São Bento, Maragogi / AL - Ensino Fundamental I</p>
+                    </div>
+                    <div class="title">${titulo}</div>
+                    <div>${tabelaClonada.outerHTML}</div>
+                    <footer>Emitido em ${dataEmissao} às ${horaEmissao}</footer>
+                </body>
+                </html>
+            `);
+
+            janelaImpressao.document.close();
+            janelaImpressao.focus();
+
+            // Executa o comando de impressão assim que os elementos forem renderizados
+            setTimeout(() => {
+                janelaImpressao.print();
+                janelaImpressao.close();
+            }, 250);
         }
     </script>
 </body>
