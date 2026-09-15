@@ -1,3 +1,10 @@
+Sim, é totalmente possível aplicar a mesma lógica de menus suspensos para o cadastro de **Funcionários**!
+
+Aqui está o código atualizado contendo os campos de **Estado (UF)** e **Cidade** baseados na API do IBGE, além de adicionar o campo específico de **Bairro**, tanto no formulário de cadastro quanto na tabela de listagem de funcionários.
+
+Você pode substituir todo o seu código anterior pelo bloco abaixo:
+
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -34,58 +41,34 @@
             min-height: 100vh;
         }
 
-        /* CONTAINER FIXO PARA CABEÇALHO E MENU */
-        .header-wrapper {
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
         /* BANNER / CABEÇALHO PRINCIPAL */
         header {
             background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
             color: white;
-            padding: 15px 20px;
+            padding: 25px 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
 
         .header-container {
             max-width: 1200px;
             margin: 0 auto;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .header-textos {
-            flex: 1;
-            text-align: center;
-            display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
+            gap: 8px;
         }
 
         header h1 {
-            font-size: 1.8rem;
+            font-size: 2rem;
             text-transform: uppercase;
             letter-spacing: 1px;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
         }
 
-        .direcao-texto {
-            font-size: 0.95rem;
-            font-weight: 500;
-            background-color: rgba(255, 255, 255, 0.15);
-            padding: 2px 12px;
-            border-radius: 20px;
-            letter-spacing: 0.5px;
-        }
-
         header p {
-            font-size: 0.9rem;
+            font-size: 1.1rem;
             font-weight: 300;
             opacity: 0.9;
         }
@@ -94,6 +77,10 @@
         nav {
             background-color: white;
             border-bottom: 2px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .nav-container {
@@ -350,21 +337,14 @@
             background-color: #f8fafc;
         }
 
-        /* BADGES DE STATUS CLICÁVEIS */
+        /* BADGES DE STATUS */
         .badge {
-            padding: 5px 12px;
+            padding: 4px 10px;
             border-radius: 12px;
             font-size: 0.75rem;
             font-weight: bold;
             display: inline-block;
             text-transform: uppercase;
-            cursor: pointer;
-            transition: opacity 0.2s, transform 0.1s;
-        }
-
-        .badge:hover {
-            opacity: 0.8;
-            transform: scale(1.05);
         }
 
         .badge-matriculado, .badge-ativo {
@@ -408,7 +388,7 @@
             margin-top: auto;
         }
 
-        /* MODAL GENÉRICO */
+        /* MODAL DE STATUS */
         .modal {
             display: none;
             position: fixed;
@@ -417,7 +397,7 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0,0,0,0.5);
-            z-index: 2000;
+            z-index: 1000;
             align-items: center;
             justify-content: center;
         }
@@ -431,17 +411,14 @@
             padding: 25px;
             border-radius: 8px;
             width: 90%;
-            max-width: 450px;
+            max-width: 400px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            max-height: 90vh;
-            overflow-y: auto;
         }
 
         .modal-header {
             font-weight: bold;
             font-size: 1.1rem;
             margin-bottom: 15px;
-            color: var(--primary-blue);
         }
 
         .modal-footer {
@@ -454,30 +431,24 @@
 </head>
 <body>
 
-    <!-- WRAPPER PARA CONGELAR O TOPO (CABEÇALHO + MENU) -->
-    <div class="header-wrapper">
-        <!-- CABEÇALHO -->
-        <header>
-            <div class="header-container">
-                <div class="header-textos">
-                    <h1>EMEB Manoel de Medeiros Costa</h1>
-                    <div class="direcao-texto">Direção: Valdineide Alves da Silva</div>
-                    <p>São Bento, Maragogi / AL - Ensino Fundamental I (1º ao 5º Ano)</p>
-                </div>
-            </div>
-        </header>
+    <!-- CABEÇALHO -->
+    <header>
+        <div class="header-container">
+            <h1>EMEB Manoel de Medeiros Costa</h1>
+            <p>São Bento, Maragogi / AL - Ensino Fundamental I (1º ao 5º Ano)</p>
+        </div>
+    </header>
 
-        <!-- NAVEGAÇÃO / ABAS -->
-        <nav>
-            <div class="nav-container">
-                <button class="nav-btn active" onclick="switchTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Painel Geral</button>
-                <button class="nav-btn" onclick="switchTab('cad-aluno')"><i class="fa-solid fa-user-plus"></i> Cadastrar Aluno</button>
-                <button class="nav-btn" onclick="switchTab('lista-alunos')"><i class="fa-solid fa-graduation-cap"></i> Alunos</button>
-                <button class="nav-btn" onclick="switchTab('cad-funcionario')"><i class="fa-solid fa-id-card-clip"></i> Cadastrar Funcionário</button>
-                <button class="nav-btn" onclick="switchTab('lista-funcionarios')"><i class="fa-solid fa-user-tie"></i> Funcionários</button>
-            </div>
-        </nav>
-    </div>
+    <!-- NAVEGAÇÃO / ABAS -->
+    <nav>
+        <div class="nav-container">
+            <button class="nav-btn active" onclick="switchTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Painel Geral</button>
+            <button class="nav-btn" onclick="switchTab('cad-aluno')"><i class="fa-solid fa-user-plus"></i> Cadastrar Aluno</button>
+            <button class="nav-btn" onclick="switchTab('lista-alunos')"><i class="fa-solid fa-graduation-cap"></i> Alunos</button>
+            <button class="nav-btn" onclick="switchTab('cad-funcionario')"><i class="fa-solid fa-id-card-clip"></i> Cadastrar Funcionário</button>
+            <button class="nav-btn" onclick="switchTab('lista-funcionarios')"><i class="fa-solid fa-user-tie"></i> Funcionários</button>
+        </div>
+    </nav>
 
     <!-- CONTEÚDO PRINCIPAL -->
     <main>
@@ -717,33 +688,15 @@
 
                         <div class="form-group">
                             <label for="funcCargo">Cargo / Função *</label>
-                            <select id="funcCargo" required onchange="verificarCargoProfessor()">
+                            <select id="funcCargo" required>
                                 <option value="">Selecione o Cargo</option>
                                 <option value="Professor">Professor(a)</option>
-                                <option value="Auxiliar de Sala">Auxiliar de Sala</option>
                                 <option value="Merendeiro">Merendeiro(a)</option>
                                 <option value="Porteiro">Porteiro(a)</option>
                                 <option value="Serviços Gerais">Serviços Gerais</option>
                                 <option value="Coordenador">Coordenador(a)</option>
                                 <option value="Diretor">Diretor(a)</option>
                                 <option value="Motorista">Motorista</option>
-                            </select>
-                        </div>
-
-                        <!-- CAMPO CONDICIONAL PARA ÁREA DO PROFESSOR -->
-                        <div class="form-group" id="grupoAreaAtuacao" style="display: none;">
-                            <label for="funcAreaAtuacao">Área de Atuação *</label>
-                            <select id="funcAreaAtuacao">
-                                <option value="">Selecione a Área</option>
-                                <option value="Pedagogia">Pedagogia</option>
-                                <option value="Computação">Computação</option>
-                                <option value="Educação Física">Educação Física</option>
-                                <option value="Matemática">Matemática</option>
-                                <option value="Letras / Língua Portuguesa">Letras / Língua Portuguesa</option>
-                                <option value="Ciências">Ciências</option>
-                                <option value="História">História</option>
-                                <option value="Geografia">Geografia</option>
-                                <option value="Artes">Artes</option>
                             </select>
                         </div>
 
@@ -824,7 +777,6 @@
                         <select id="filterCargo" onchange="renderizarFuncionarios()">
                             <option value="">Todos os Cargos</option>
                             <option value="Professor">Professor(a)</option>
-                            <option value="Auxiliar de Sala">Auxiliar de Sala</option>
                             <option value="Merendeiro">Merendeiro(a)</option>
                             <option value="Porteiro">Porteiro(a)</option>
                             <option value="Serviços Gerais">Serviços Gerais</option>
@@ -855,7 +807,7 @@
                         <thead>
                             <tr>
                                 <th>Nome</th>
-                                <th>Cargo / Área</th>
+                                <th>Cargo</th>
                                 <th>Carga Horária</th>
                                 <th>Vínculo</th>
                                 <th>Admissão</th>
@@ -887,151 +839,9 @@
                 </select>
             </div>
             <div class="modal-footer">
-                <button class="action-btn" onclick="fecharModalStatus()">Cancelar</button>
+                <button class="action-btn" onclick="fecharModal()">Cancelar</button>
                 <button class="btn-submit" style="padding: 6px 15px; margin-top:0;" onclick="confirmarAlteracaoStatus()">Salvar</button>
             </div>
-        </div>
-    </div>
-
-    <!-- MODAL DE EDIÇÃO COMPLETA DE ALUNO -->
-    <div class="modal" id="editAlunoModal">
-        <div class="modal-content" style="max-width: 600px;">
-            <div class="modal-header">Editar Cadastro de Aluno</div>
-            <form id="formEditAluno" onsubmit="salvarEdicaoAluno(event)">
-                <input type="hidden" id="editAlunoId">
-                <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label>Nome Completo do Aluno *</label>
-                        <input type="text" id="editAlunoNome" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Data de Nascimento *</label>
-                        <input type="date" id="editAlunoDataNasc" required>
-                    </div>
-                    <div class="form-group">
-                        <label>CPF do Aluno</label>
-                        <input type="text" id="editAlunoCpf" class="cpf-mask">
-                    </div>
-                    <div class="form-group">
-                        <label>Ano / Série *</label>
-                        <select id="editAlunoAno" required>
-                            <option value="1º Ano">1º Ano</option>
-                            <option value="2º Ano">2º Ano</option>
-                            <option value="3º Ano">3º Ano</option>
-                            <option value="4º Ano">4º Ano</option>
-                            <option value="5º Ano">5º Ano</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Turma *</label>
-                        <select id="editAlunoTurma" required>
-                            <option value="A">Turma A</option>
-                            <option value="B">Turma B</option>
-                            <option value="C">Turma C</option>
-                            <option value="D">Turma D</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Nome da Mãe *</label>
-                        <input type="text" id="editNomeMae" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Telefone da Mãe *</label>
-                        <input type="tel" id="editTelMae" class="phone-mask" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Nome do Pai</label>
-                        <input type="text" id="editNomePai">
-                    </div>
-                    <div class="form-group">
-                        <label>Telefone do Pai</label>
-                        <input type="tel" id="editTelPai" class="phone-mask">
-                    </div>
-                    <div class="form-group full-width">
-                        <label>Endereço Residencial *</label>
-                        <input type="text" id="editAlunoEndereco" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="action-btn" onclick="fecharModalEdicaoAluno()">Cancelar</button>
-                    <button type="submit" class="btn-submit" style="padding: 6px 15px; margin-top:0;">Salvar Alterações</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL DE EDIÇÃO COMPLETA DE FUNCIONÁRIO -->
-    <div class="modal" id="editFuncModal">
-        <div class="modal-content" style="max-width: 600px;">
-            <div class="modal-header">Editar Cadastro de Funcionário</div>
-            <form id="formEditFunc" onsubmit="salvarEdicaoFuncionario(event)">
-                <input type="hidden" id="editFuncId">
-                <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label>Nome Completo *</label>
-                        <input type="text" id="editFuncNome" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Cargo / Função *</label>
-                        <select id="editFuncCargo" required onchange="verificarCargoProfessorEdicao()">
-                            <option value="Professor">Professor(a)</option>
-                            <option value="Auxiliar de Sala">Auxiliar de Sala</option>
-                            <option value="Merendeiro">Merendeiro(a)</option>
-                            <option value="Porteiro">Porteiro(a)</option>
-                            <option value="Serviços Gerais">Serviços Gerais</option>
-                            <option value="Coordenador">Coordenador(a)</option>
-                            <option value="Diretor">Diretor(a)</option>
-                            <option value="Motorista">Motorista</option>
-                        </select>
-                    </div>
-                    <div class="form-group" id="grupoEditAreaAtuacao" style="display: none;">
-                        <label>Área de Atuação *</label>
-                        <select id="editFuncAreaAtuacao">
-                            <option value="Pedagogia">Pedagogia</option>
-                            <option value="Computação">Computação</option>
-                            <option value="Educação Física">Educação Física</option>
-                            <option value="Matemática">Matemática</option>
-                            <option value="Letras / Língua Portuguesa">Letras / Língua Portuguesa</option>
-                            <option value="Ciências">Ciências</option>
-                            <option value="História">História</option>
-                            <option value="Geografia">Geografia</option>
-                            <option value="Artes">Artes</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Telefone / WhatsApp *</label>
-                        <input type="tel" id="editFuncTelefone" class="phone-mask" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Carga Horária Semanal *</label>
-                        <select id="editFuncCargaHoraria" required>
-                            <option value="20h">20 Horas Semanais</option>
-                            <option value="25h">25 Horas Semanais</option>
-                            <option value="30h">30 Horas Semanais</option>
-                            <option value="40h">40 Horas Semanais</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Vínculo Empregatício *</label>
-                        <select id="editFuncVinculo" required>
-                            <option value="Efetivo">Efetivo / Concursado</option>
-                            <option value="Contratado">Contratado / Temporário</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Bairro *</label>
-                        <input type="text" id="editFuncBairro" required>
-                    </div>
-                    <div class="form-group full-width">
-                        <label>Rua e Número *</label>
-                        <input type="text" id="editFuncRuaNum" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="action-btn" onclick="fecharModalEdicaoFunc()">Cancelar</button>
-                    <button type="submit" class="btn-submit" style="padding: 6px 15px; margin-top:0;">Salvar Alterações</button>
-                </div>
-            </form>
         </div>
     </div>
 
@@ -1042,12 +852,14 @@
 
     <!-- JAVASCRIPT / LÓGICA DO SISTEMA -->
     <script>
+        // ESTADO GLOBAL DA APLICAÇÃO (Salvo em localStorage)
         let alunos = JSON.parse(localStorage.getItem('emeb_alunos')) || [];
         let funcionarios = JSON.parse(localStorage.getItem('emeb_funcionarios')) || [];
 
         let currentEditType = null; 
         let currentEditId = null;
 
+        // INICIALIZAÇÃO
         document.addEventListener('DOMContentLoaded', () => {
             renderizarAlunos();
             renderizarFuncionarios();
@@ -1056,6 +868,7 @@
             inicializarEstados();
         });
 
+        // TROCA DE ABAS
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
@@ -1070,36 +883,7 @@
             if (tabId === 'dashboard') atualizarDashboard();
         }
 
-        function verificarCargoProfessor() {
-            const cargo = document.getElementById('funcCargo').value;
-            const grupoArea = document.getElementById('grupoAreaAtuacao');
-            const selectArea = document.getElementById('funcAreaAtuacao');
-
-            if (cargo === 'Professor') {
-                grupoArea.style.display = 'flex';
-                selectArea.required = true;
-            } else {
-                grupoArea.style.display = 'none';
-                selectArea.required = false;
-                selectArea.value = '';
-            }
-        }
-
-        function verificarCargoProfessorEdicao() {
-            const cargo = document.getElementById('editFuncCargo').value;
-            const grupoArea = document.getElementById('grupoEditAreaAtuacao');
-            const selectArea = document.getElementById('editFuncAreaAtuacao');
-
-            if (cargo === 'Professor') {
-                grupoArea.style.display = 'flex';
-                selectArea.required = true;
-            } else {
-                grupoArea.style.display = 'none';
-                selectArea.required = false;
-                selectArea.value = '';
-            }
-        }
-
+        // INTEGRAÇÃO API IBGE (ESTADOS E CIDADES - REUTILIZÁVEL)
         function inicializarEstados() {
             carregarEstados('alunoEstadoNasc');
             carregarEstados('funcEstado');
@@ -1149,6 +933,7 @@
                 });
         }
 
+        // MÁSCARAS AUTOMÁTICAS (TELEFONE E CPF)
         function aplicarMascaras() {
             document.querySelectorAll('.phone-mask').forEach(input => {
                 input.addEventListener('input', (e) => {
@@ -1179,6 +964,8 @@
             });
         }
 
+        // ---- LÓGICA DE ALUNOS ----
+
         function salvarAluno(event) {
             event.preventDefault();
 
@@ -1189,7 +976,6 @@
                 id: Date.now(),
                 nome: document.getElementById('alunoNome').value.trim(),
                 dataNascimento: dataFormatada,
-                dataNascRaw: dataNasc,
                 cidadeNasc: document.getElementById('alunoCidadeNasc').value,
                 estadoNasc: document.getElementById('alunoEstadoNasc').value,
                 cpf: document.getElementById('alunoCpf').value.trim() || 'Não informado',
@@ -1266,9 +1052,9 @@
                         ${a.telPai !== 'N/A' ? `<small><i class="fa-solid fa-phone"></i> P: ${a.telPai}</small>` : ''}
                     </td>
                     <td>${a.endereco}</td>
-                    <td><span class="badge ${badgeClass}" title="Clique para alterar o status" onclick="abrirModalStatus('aluno', ${a.id})">${a.status}</span></td>
+                    <td><span class="badge ${badgeClass}">${a.status}</span></td>
                     <td class="action-col">
-                        <button class="action-btn" title="Editar Cadastro Completo" onclick="abrirModalEdicaoAluno(${a.id})">
+                        <button class="action-btn" title="Alterar Status" onclick="abrirModalStatus('aluno', ${a.id})">
                             <i class="fa-solid fa-pen-to-square"></i>
                         </button>
                         <button class="action-btn" title="Excluir" onclick="excluirItem('aluno', ${a.id})">
@@ -1280,74 +1066,22 @@
             });
         }
 
-        function abrirModalEdicaoAluno(id) {
-            const a = alunos.find(item => item.id === id);
-            if (!a) return;
-
-            document.getElementById('editAlunoId').value = a.id;
-            document.getElementById('editAlunoNome').value = a.nome;
-            document.getElementById('editAlunoDataNasc').value = a.dataNascRaw || '';
-            document.getElementById('editAlunoCpf').value = a.cpf !== 'Não informado' ? a.cpf : '';
-            document.getElementById('editAlunoAno').value = a.ano;
-            document.getElementById('editAlunoTurma').value = a.turma;
-            document.getElementById('editNomeMae').value = a.nomeMae;
-            document.getElementById('editTelMae').value = a.telMae;
-            document.getElementById('editNomePai').value = a.nomePai !== 'Não informado' ? a.nomePai : '';
-            document.getElementById('editTelPai').value = a.telPai !== 'N/A' ? a.telPai : '';
-            document.getElementById('editAlunoEndereco').value = a.endereco;
-
-            document.getElementById('editAlunoModal').classList.add('active');
-        }
-
-        function fecharModalEdicaoAluno() {
-            document.getElementById('editAlunoModal').classList.remove('active');
-        }
-
-        function salvarEdicaoAluno(event) {
-            event.preventDefault();
-            const id = parseInt(document.getElementById('editAlunoId').value);
-            const a = alunos.find(item => item.id === id);
-
-            if (a) {
-                const dataNasc = document.getElementById('editAlunoDataNasc').value;
-                a.nome = document.getElementById('editAlunoNome').value.trim();
-                a.dataNascRaw = dataNasc;
-                a.dataNascimento = dataNasc ? new Date(dataNasc + 'T00:00:00').toLocaleDateString('pt-BR') : 'N/A';
-                a.cpf = document.getElementById('editAlunoCpf').value.trim() || 'Não informado';
-                a.ano = document.getElementById('editAlunoAno').value;
-                a.turma = document.getElementById('editAlunoTurma').value;
-                a.nomeMae = document.getElementById('editNomeMae').value.trim();
-                a.telMae = document.getElementById('editTelMae').value;
-                a.nomePai = document.getElementById('editNomePai').value.trim() || 'Não informado';
-                a.telPai = document.getElementById('editTelPai').value || 'N/A';
-                a.endereco = document.getElementById('editAlunoEndereco').value.trim();
-
-                localStorage.setItem('emeb_alunos', JSON.stringify(alunos));
-                renderizarAlunos();
-                atualizarDashboard();
-                fecharModalEdicaoAluno();
-                alert('Cadastro do aluno atualizado com sucesso!');
-            }
-        }
+        // ---- LÓGICA DE FUNCIONÁRIOS ----
 
         function salvarFuncionario(event) {
             event.preventDefault();
 
             const dataAdmissao = document.getElementById('funcDataAdmissao').value;
             const dataFormatada = dataAdmissao ? new Date(dataAdmissao + 'T00:00:00').toLocaleDateString('pt-BR') : 'N/A';
-            const cargo = document.getElementById('funcCargo').value;
-            const areaAtuacao = document.getElementById('funcAreaAtuacao').value;
 
             const novoFunc = {
                 id: Date.now(),
                 nome: document.getElementById('funcNome').value.trim(),
-                cargo: cargo,
-                areaAtuacao: cargo === 'Professor' ? areaAtuacao : null,
+                cargo: document.getElementById('funcCargo').value,
                 telefone: document.getElementById('funcTelefone').value,
                 cargaHoraria: document.getElementById('funcCargaHoraria').value,
                 vinculo: document.getElementById('funcVinculo').value,
                 dataAdmissao: dataFormatada,
-                dataAdmissaoRaw: dataAdmissao,
                 ruaNum: document.getElementById('funcRuaNum').value.trim(),
                 bairro: document.getElementById('funcBairro').value.trim(),
                 cidade: document.getElementById('funcCidade').value,
@@ -1360,7 +1094,6 @@
 
             alert('Funcionário cadastrado com sucesso!');
             document.getElementById('formFuncionario').reset();
-            verificarCargoProfessor();
             
             const selectCidade = document.getElementById('funcCidade');
             selectCidade.innerHTML = '<option value="">Selecione o Estado primeiro</option>';
@@ -1397,23 +1130,19 @@
                 if (f.status === 'Licença') badgeClass = 'badge-licenca';
                 if (f.status === 'Desligado') badgeClass = 'badge-desligado';
 
-                const cargoTexto = f.cargo === 'Professor' && f.areaAtuacao 
-                    ? `Professor(a) - ${f.areaAtuacao}` 
-                    : f.cargo;
-
                 const enderecoCompleto = f.ruaNum ? `${f.ruaNum}, Bairro: ${f.bairro} - ${f.cidade}/${f.estado}` : (f.endereco || 'Não informado');
 
                 tr.innerHTML = `
                     <td><strong>${f.nome}</strong></td>
-                    <td>${cargoTexto}</td>
+                    <td>${f.cargo}</td>
                     <td>${f.cargaHoraria || 'N/A'}</td>
                     <td>${f.vinculo || 'N/A'}</td>
                     <td>${f.dataAdmissao || 'N/A'}</td>
                     <td>${f.telefone}</td>
                     <td>${enderecoCompleto}</td>
-                    <td><span class="badge ${badgeClass}" title="Clique para alterar o status" onclick="abrirModalStatus('funcionario', ${f.id})">${f.status}</span></td>
+                    <td><span class="badge ${badgeClass}">${f.status}</span></td>
                     <td class="action-col">
-                        <button class="action-btn" title="Editar Cadastro Completo" onclick="abrirModalEdicaoFunc(${f.id})">
+                        <button class="action-btn" title="Alterar Status" onclick="abrirModalStatus('funcionario', ${f.id})">
                             <i class="fa-solid fa-pen-to-square"></i>
                         </button>
                         <button class="action-btn" title="Excluir" onclick="excluirItem('funcionario', ${f.id})">
@@ -1425,54 +1154,7 @@
             });
         }
 
-        function abrirModalEdicaoFunc(id) {
-            const f = funcionarios.find(item => item.id === id);
-            if (!f) return;
-
-            document.getElementById('editFuncId').value = f.id;
-            document.getElementById('editFuncNome').value = f.nome;
-            document.getElementById('editFuncCargo').value = f.cargo;
-            document.getElementById('editFuncTelefone').value = f.telefone;
-            document.getElementById('editFuncCargaHoraria').value = f.cargaHoraria;
-            document.getElementById('editFuncVinculo').value = f.vinculo;
-            document.getElementById('editFuncBairro').value = f.bairro || '';
-            document.getElementById('editFuncRuaNum').value = f.ruaNum || '';
-
-            verificarCargoProfessorEdicao();
-            if (f.cargo === 'Professor' && f.areaAtuacao) {
-                document.getElementById('editFuncAreaAtuacao').value = f.areaAtuacao;
-            }
-
-            document.getElementById('editFuncModal').classList.add('active');
-        }
-
-        function fecharModalEdicaoFunc() {
-            document.getElementById('editFuncModal').classList.remove('active');
-        }
-
-        function salvarEdicaoFuncionario(event) {
-            event.preventDefault();
-            const id = parseInt(document.getElementById('editFuncId').value);
-            const f = funcionarios.find(item => item.id === id);
-
-            if (f) {
-                const cargo = document.getElementById('editFuncCargo').value;
-                f.nome = document.getElementById('editFuncNome').value.trim();
-                f.cargo = cargo;
-                f.areaAtuacao = cargo === 'Professor' ? document.getElementById('editFuncAreaAtuacao').value : null;
-                f.telefone = document.getElementById('editFuncTelefone').value;
-                f.cargaHoraria = document.getElementById('editFuncCargaHoraria').value;
-                f.vinculo = document.getElementById('editFuncVinculo').value;
-                f.bairro = document.getElementById('editFuncBairro').value.trim();
-                f.ruaNum = document.getElementById('editFuncRuaNum').value.trim();
-
-                localStorage.setItem('emeb_funcionarios', JSON.stringify(funcionarios));
-                renderizarFuncionarios();
-                atualizarDashboard();
-                fecharModalEdicaoFunc();
-                alert('Cadastro do funcionário atualizado com sucesso!');
-            }
-        }
+        // ---- MODAL DE MODIFICAÇÃO DE STATUS ----
 
         function abrirModalStatus(tipo, id) {
             currentEditType = tipo;
@@ -1498,7 +1180,7 @@
             document.getElementById('statusModal').classList.add('active');
         }
 
-        function fecharModalStatus() {
+        function fecharModal() {
             document.getElementById('statusModal').classList.remove('active');
         }
 
@@ -1517,7 +1199,7 @@
                 renderizarFuncionarios();
             }
 
-            fecharModalStatus();
+            fecharModal();
             atualizarDashboard();
         }
 
@@ -1535,6 +1217,8 @@
             }
             atualizarDashboard();
         }
+
+        // ---- DASHBOARD ----
 
         function atualizarDashboard() {
             const alunosAtivos = alunos.filter(a => a.status === 'Matriculado').length;
@@ -1569,6 +1253,8 @@
             });
         }
 
+        // ---- IMPRESSÃO ----
+
         function imprimirTabela(tableId, titulo) {
             const tabelaOriginal = document.getElementById(tableId);
             if (!tabelaOriginal) return;
@@ -1590,8 +1276,8 @@
                     <style>
                         body { font-family: Arial, sans-serif; padding: 20px; color: #000; }
                         .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
-                        .header h1 { font-size: 1.3rem; margin: 0; text-transform: uppercase; }
-                        .header p { margin: 3px 0; font-size: 0.85rem; }
+                        .header h1 { font-size: 1.4rem; margin: 0; text-transform: uppercase; }
+                        .header p { margin: 3px 0; font-size: 0.9rem; }
                         .title { font-size: 1.1rem; font-weight: bold; text-transform: uppercase; margin: 15px 0 10px; }
                         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
                         th, td { border: 1px solid #000; padding: 8px; text-align: left; }
@@ -1602,7 +1288,6 @@
                 <body>
                     <div class="header">
                         <h1>EMEB Manoel de Medeiros Costa</h1>
-                        <p>Direção: Valdineide Alves da Silva</p>
                         <p>Povoado São Bento, Maragogi / AL - Ensino Fundamental I</p>
                     </div>
                     <div class="title">${titulo}</div>
@@ -1623,3 +1308,5 @@
     </script>
 </body>
 </html>
+
+```
